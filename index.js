@@ -18,13 +18,33 @@ app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
 
+// API endpoint for date handling
+app.get("/api/:date?", function (req, res) {
+  let dateString = req.params.date;
+  let date;
 
-// your first API endpoint... 
-app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
+  // If dateString is empty, use the current date
+  if (!dateString) {
+    date = new Date();
+  } else {
+    // If dateString is a number, convert it to an integer
+    if (!isNaN(dateString)) {
+      dateString = parseInt(dateString);
+    }
+    date = new Date(dateString);
+  }
+
+  // Check if the date is valid
+  if (date.toString() === "Invalid Date") {
+    return res.json({ error: "Invalid Date" });
+  }
+
+  // Return the JSON response with both unix and utc keys
+  res.json({
+    unix: date.getTime(),
+    utc: date.toUTCString()
+  });
 });
-
-
 
 // Listen on port set in environment variable or default to 3000
 var listener = app.listen(process.env.PORT || 3000, function () {
